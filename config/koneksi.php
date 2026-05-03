@@ -1,12 +1,13 @@
 <?php
-// Konfigurasi database
-$host = "localhost";
-$user = "root";
-$pass = "";
-$db   = "spk_jurusan";
+// Konfigurasi database - support Railway (env vars) dan hosting biasa (hardcode)
+$host = getenv('MYSQLHOST')     ?: getenv('DB_HOST')     ?: 'localhost';
+$user = getenv('MYSQLUSER')     ?: getenv('DB_USER')     ?: 'if0_41810587';
+$pass = getenv('MYSQLPASSWORD') ?: getenv('DB_PASSWORD') ?: 'ruDNL9SgZI';
+$db   = getenv('MYSQLDATABASE') ?: getenv('DB_NAME')     ?: 'if0_41810587_spk_jurusan';
+$port = (int)(getenv('MYSQLPORT') ?: getenv('DB_PORT') ?: 3306);
 
 // Koneksi database
-$conn = mysqli_connect($host, $user, $pass, $db);
+$conn = mysqli_connect($host, $user, $pass, $db, $port);
 
 // Cek koneksi
 if (!$conn) {
@@ -15,9 +16,6 @@ if (!$conn) {
 
 // Set charset
 mysqli_set_charset($conn, "utf8");
-
-// Nonaktifkan error reporting untuk production (opsional)
-// mysqli_report(MYSQLI_REPORT_ERROR);
 
 // Fungsi untuk membersihkan input
 function clean_input($data) {
@@ -28,24 +26,20 @@ function clean_input($data) {
     return mysqli_real_escape_string($conn, $data);
 }
 
-// Fungsi untuk redirect
+// Fungsi redirect
 function redirect($url) {
     header("Location: $url");
     exit;
 }
 
-// Fungsi untuk menampilkan notifikasi
+// Fungsi flash message
 function set_flash($type, $message) {
-    $_SESSION['flash'] = [
-        'type' => $type,
-        'message' => $message
-    ];
+    $_SESSION['flash'] = ['type' => $type, 'message' => $message];
 }
 
-// Fungsi untuk menampilkan flash message
 function show_flash() {
-    if(isset($_SESSION['flash'])) {
-        $type = $_SESSION['flash']['type'];
+    if (isset($_SESSION['flash'])) {
+        $type    = $_SESSION['flash']['type'];
         $message = $_SESSION['flash']['message'];
         echo "<div class='alert alert-$type alert-dismissible fade show' role='alert'>
                 <i class='fas " . ($type == 'success' ? 'fa-check-circle' : ($type == 'danger' ? 'fa-exclamation-circle' : 'fa-info-circle')) . " me-2'></i>
