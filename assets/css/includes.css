@@ -1,0 +1,227 @@
+/* ========================================
+   INCLUDES CSS (Header, Sidebar, Footer)
+   ======================================== */
+
+/* ========== SIDEBAR STYLES ========== */
+.sidebar {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    color: white;
+    position: fixed;
+    width: 260px;
+    top: 0;
+    left: 0;
+    overflow-y: auto;
+    box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+    z-index: 1000;
+    transition: left 0.3s ease;
+}
+
+.sidebar::-webkit-scrollbar {
+    width: 5px;
+}
+
+.sidebar::-webkit-scrollbar-track {
+    background: rgba(255,255,255,0.1);
+}
+
+.sidebar::-webkit-scrollbar-thumb {
+    background: rgba(255,255,255,0.3);
+    border-radius: 5px;
+}
+
+.sidebar a {
+    color: rgba(255,255,255,0.8);
+    text-decoration: none;
+    padding: 12px 20px;
+    display: block;
+    transition: all 0.3s;
+    font-size: 14px;
+}
+
+.sidebar a:hover {
+    background: rgba(255,255,255,0.1);
+    color: white;
+    padding-left: 28px;
+}
+
+.sidebar a.active {
+    background: rgba(255,255,255,0.2);
+    color: white;
+    border-left: 4px solid white;
+}
+
+.sidebar .user-info {
+    padding: 20px;
+    text-align: center;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+.sidebar .user-info i {
+    font-size: 60px;
+    margin-bottom: 10px;
+}
+
+.sidebar .user-info h6 {
+    margin-bottom: 5px;
+    font-size: 16px;
+}
+
+.sidebar .user-info small {
+    font-size: 12px;
+    opacity: 0.7;
+}
+
+.sidebar .menu-title {
+    padding: 10px 20px;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: rgba(255,255,255,0.5);
+}
+
+.sidebar hr {
+    margin: 10px 0;
+    border-color: rgba(255,255,255,0.1);
+}
+
+/* ========== MAIN CONTENT ========== */
+.main-content {
+    margin-left: 260px;
+    padding: 20px;
+    min-height: 100vh;
+    transition: margin-left 0.3s ease;
+}
+
+/* ========== TOGGLE SIDEBAR BUTTON (MOBILE) ========== */
+.toggle-sidebar-btn {
+    display: none;
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    z-index: 999;
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+    align-items: center;
+    justify-content: center;
+}
+
+/* ========== SIDEBAR OVERLAY ========== */
+.sidebar-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 999;
+    display: none;
+}
+
+.sidebar-overlay.show {
+    display: block;
+}
+
+/* ========== RESPONSIVE SIDEBAR (MOBILE) ========== */
+@media (max-width: 768px) {
+    .sidebar {
+        left: -280px;
+        width: 280px;
+    }
+    .sidebar.show {
+        left: 0;
+    }
+    .main-content {
+        margin-left: 0;
+        width: 100%;
+        padding: 15px;
+    }
+    .toggle-sidebar-btn {
+        display: flex;
+    }
+    .sidebar a {
+        padding: 10px 20px;
+        font-size: 13px;
+    }
+    .sidebar .user-info i {
+        font-size: 50px;
+    }
+    .sidebar .user-info h6 {
+        font-size: 14px;
+    }
+}
+
+/* ========== RESPONSIVE TABLET ========== */
+@media (min-width: 769px) and (max-width: 1024px) {
+    .sidebar {
+        width: 220px;
+    }
+    .main-content {
+        margin-left: 220px;
+    }
+}
+
+/* ========== RESPONSIVE DESKTOP ========== */
+@media (min-width: 1025px) {
+    .sidebar {
+        width: 260px;
+    }
+    .main-content {
+        margin-left: 260px;
+    }
+}
+
+/* ========== PRINT STYLES ========== */
+@media print {
+    .sidebar, .toggle-sidebar-btn, .btn-print-hide, .btn, .no-print {
+        display: none;
+    }
+    .main-content {
+        margin-left: 0;
+        padding: 0;
+    }
+}
+
+/* ========== LOADING SPINNER (di footer) ========== */
+.loading {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 9999;
+    justify-content: center;
+    align-items: center;
+}
+
+.loading.show {
+    display: flex;
+}
+
+/* ========== SWEETALERT CUSTOMIZATION (di footer) ========== */
+.swal2-popup {
+    font-size: 0.9rem !important;
+}
+
+@media (max-width: 576px) {
+    .swal2-popup {
+        width: 90% !important;
+        font-size: 0.8rem !important;
+    }
+    .swal2-title {
+        font-size: 1.2rem !important;
+    }
+    .swal2-html-container {
+        font-size: 0.9rem !important;
+    }
+    .swal2-actions .btn {
+        font-size: 0.75rem !important;
+        padding: 0.25rem 0.75rem !important;
+    }
+
+    
+}
