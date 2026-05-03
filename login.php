@@ -1,9 +1,11 @@
 <?php
+ini_set('display_errors', 1);
+error_reporting(E_ALL);
+
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-// Jika sudah login, langsung ke dashboard
 if (isset($_SESSION['user'])) {
     header("Location: dashboard.php");
     exit;
@@ -11,7 +13,6 @@ if (isset($_SESSION['user'])) {
 
 $error = '';
 
-// Proses login saat form di-submit
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $username = trim($_POST['username'] ?? '');
     $password = trim($_POST['password'] ?? '');
@@ -19,29 +20,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($username === '' || $password === '') {
         $error = 'Username dan password tidak boleh kosong!';
     } else {
-        // Koneksi pakai env vars Railway, fallback ke hardcode
-        $host = getenv('MYSQLHOST')     ?: getenv('DB_HOST')     ?: 'localhost';
-        $db_user = getenv('MYSQLUSER')  ?: getenv('DB_USER')     ?: 'if0_41810587';
+        $host    = getenv('MYSQLHOST')     ?: getenv('DB_HOST')     ?: 'sql102.byetcluster.com';
+        $db_user = getenv('MYSQLUSER')     ?: getenv('DB_USER')     ?: 'if0_41810587';
         $db_pass = getenv('MYSQLPASSWORD') ?: getenv('DB_PASSWORD') ?: 'ruDNL9SgZI';
-        $db_name = getenv('MYSQLDATABASE') ?: getenv('DB_NAME')  ?: 'if0_41810587_spk_jurusan';
-        $db_port = (int)(getenv('MYSQLPORT') ?: getenv('DB_PORT') ?: 3306);
+        $db_name = getenv('MYSQLDATABASE') ?: getenv('DB_NAME')     ?: 'if0_41810587_spk_jurusan';
+        $db_port = (int)(getenv('MYSQLPORT') ?: getenv('DB_PORT')   ?: 3306);
 
-        $conn = @mysqli_connect($host, $db_user, $db_pass, $db_name, $db_port);
+        try {
+            $dsn = "mysql:host=$host;port=$db_port;dbname=$db_name;charset=utf8";
+            $pdo = new PDO($dsn, $db_user, $db_pass, [
+                PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
+                PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+            ]);
 
-        if (!$conn) {
-            $error = 'Koneksi database gagal. Cek konfigurasi server.';
-        } else {
-            mysqli_set_charset($conn, "utf8");
-            $username_safe = mysqli_real_escape_string($conn, $username);
+            $stmt = $pdo->prepare("SELECT * FROM `user` WHERE username = ? LIMIT 1");
+            $stmt->execute([$username]);
+            $row = $stmt->fetch();
 
-            $sql    = "SELECT * FROM `user` WHERE username = '$username_safe' LIMIT 1";
-            $result = mysqli_query($conn, $sql);
-
-            if ($result && mysqli_num_rows($result) > 0) {
-                $row = mysqli_fetch_assoc($result);
-
+            if ($row) {
                 $valid = false;
-                if (function_exists('password_verify') && password_verify($password, $row['password'])) {
+                if (password_verify($password, $row['password'])) {
                     $valid = true;
                 } elseif ($row['password'] === md5($password)) {
                     $valid = true;
@@ -52,7 +50,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 if ($valid) {
                     $_SESSION['user']    = $row['username'];
                     $_SESSION['user_id'] = $row['id'];
-                    mysqli_close($conn);
                     header("Location: dashboard.php");
                     exit;
                 } else {
@@ -61,7 +58,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             } else {
                 $error = 'Username atau password salah!';
             }
-            mysqli_close($conn);
+        } catch (PDOException $e) {
+            $error = 'Koneksi database gagal: ' . $e->getMessage();
         }
     }
 }
@@ -77,7 +75,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <style>
         body {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            height: 100vh;
+            min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -88,17 +86,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             box-shadow: 0 20px 40px rgba(0,0,0,0.2);
             padding: 40px;
             width: 100%;
-            max-width: 400px;
+            max-width: 420px;
         }
         .login-header { text-align: center; margin-bottom: 30px; }
-        .login-header i { font-size: 60px; color: #667eea; margin-bottom: 15px; }
+        .login-header i { font-size: 60px; color: #667eea; margin-bottom: 15px; display: block; }
         .form-control { border-radius: 10px; padding: 12px 15px; border: 1px solid #ddd; }
         .btn-login {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             border: none; border-radius: 10px; padding: 12px;
-            width: 100%; font-weight: bold; transition: transform 0.3s;
+            width: 100%; font-weight: bold; color: white;
         }
-        .btn-login:hover { transform: translateY(-2px); }
     </style>
 </head>
 <body>
@@ -129,7 +126,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <input type="password" class="form-control" name="password" placeholder="Password" required>
                 </div>
             </div>
-            <button type="submit" class="btn btn-login btn-primary">
+            <button type="submit" class="btn btn-login">
                 <i class="fas fa-sign-in-alt me-2"></i> Login
             </button>
         </form>
